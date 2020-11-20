@@ -2,6 +2,7 @@ package com.e.partsofspeechdemo;
 
 import android.app.Activity;
 import android.app.Dialog;
+import android.content.Intent;
 import android.graphics.Rect;
 import android.media.MediaPlayer;
 import android.os.Bundle;
@@ -244,7 +245,12 @@ public class PartsOfSpeechMain extends Activity implements OnTouchListener{
     public boolean onTouch(View v, MotionEvent event) {
         //method is used when a image view has been touched, dragged and dropped.
         //the image view is passed as a parameter to the method
-
+        Log.d("TAG", "dragging:  " + dragging);
+        if(!dragging){
+            temp.setVisibility(View.INVISIBLE);
+        }
+        Log.d("TAG", "dragging:  " + dragging);
+        Log.d("TAG", "STOP");
         boolean eventConsumed = true;
         int x = (int)event.getX();
         int y = (int)event.getY();
@@ -260,6 +266,7 @@ public class PartsOfSpeechMain extends Activity implements OnTouchListener{
                 index = 0;
                 speech.speak(wordList.get(index).text, TextToSpeech.QUEUE_ADD,null);
                 eventConsumed = false;
+                temp.setVisibility(View.VISIBLE);
             }
             else if (v == word2Img){
                 temp.setText(word2Img.getText());
@@ -268,6 +275,7 @@ public class PartsOfSpeechMain extends Activity implements OnTouchListener{
                 index = 1;
                 speech.speak(wordList.get(index).text, TextToSpeech.QUEUE_ADD,null);
                 eventConsumed = false;
+                temp.setVisibility(View.VISIBLE);
             }
             else if (v == word3Img) {
                 temp.setText(word3Img.getText());
@@ -276,6 +284,7 @@ public class PartsOfSpeechMain extends Activity implements OnTouchListener{
                 index = 2;
                 speech.speak(wordList.get(index).text, TextToSpeech.QUEUE_ADD,null);
                 eventConsumed = false;
+                temp.setVisibility(View.VISIBLE);
             }
             else if (v == word4Img){
                 temp.setText(word4Img.getText());
@@ -284,6 +293,7 @@ public class PartsOfSpeechMain extends Activity implements OnTouchListener{
                 index = 3;
                 speech.speak(wordList.get(index).text, TextToSpeech.QUEUE_ADD,null);
                 eventConsumed = false;
+                temp.setVisibility(View.VISIBLE);
             }
             else if (v == word5Img){
                 temp.setText(word5Img.getText());
@@ -292,6 +302,7 @@ public class PartsOfSpeechMain extends Activity implements OnTouchListener{
                 index = 4;
                 speech.speak(wordList.get(index).text, TextToSpeech.QUEUE_ADD,null);
                 eventConsumed = false;
+                temp.setVisibility(View.VISIBLE);
             }
             else if (v == word6Img){
                 temp.setText(word6Img.getText());
@@ -300,6 +311,7 @@ public class PartsOfSpeechMain extends Activity implements OnTouchListener{
                 index = 5;
                 speech.speak(wordList.get(index).text, TextToSpeech.QUEUE_ADD,null);
                 eventConsumed = false;
+                temp.setVisibility(View.VISIBLE);
             }
             else if (v == word7Img) {
                 temp.setText(word7Img.getText());
@@ -308,6 +320,7 @@ public class PartsOfSpeechMain extends Activity implements OnTouchListener{
                 index = 6;
                 speech.speak(wordList.get(index).text, TextToSpeech.QUEUE_ADD,null);
                 eventConsumed = false;
+                temp.setVisibility(View.VISIBLE);
             }
             else if (v == word8Img){
                 temp.setText(word8Img.getText());
@@ -316,6 +329,7 @@ public class PartsOfSpeechMain extends Activity implements OnTouchListener{
                 index = 7;
                 speech.speak(wordList.get(index).text, TextToSpeech.QUEUE_ADD,null);
                 eventConsumed = false;
+                temp.setVisibility(View.VISIBLE);
             }
             else if (v == word9Img){
                 temp.setText(word9Img.getText());
@@ -324,6 +338,7 @@ public class PartsOfSpeechMain extends Activity implements OnTouchListener{
                 index = 8;
                 speech.speak(wordList.get(index).text, TextToSpeech.QUEUE_ADD,null);
                 eventConsumed = false;
+                temp.setVisibility(View.VISIBLE);
             }
             else if (v == word10Img){
                 temp.setText(word10Img.getText());
@@ -332,6 +347,7 @@ public class PartsOfSpeechMain extends Activity implements OnTouchListener{
                 index = 9;
                 speech.speak(wordList.get(index).text, TextToSpeech.QUEUE_ADD,null);
                 eventConsumed = false;
+                temp.setVisibility(View.VISIBLE);
             }
             else if (v == word11Img) {
                 temp.setText(word11Img.getText());
@@ -340,6 +356,7 @@ public class PartsOfSpeechMain extends Activity implements OnTouchListener{
                 index = 10;
                 speech.speak(wordList.get(index).text, TextToSpeech.QUEUE_ADD,null);
                 eventConsumed = false;
+                temp.setVisibility(View.VISIBLE);
             }
             else if (v == word12Img){
                 temp.setText(word12Img.getText());
@@ -348,12 +365,15 @@ public class PartsOfSpeechMain extends Activity implements OnTouchListener{
                 index = 11;
                 speech.speak(wordList.get(index).text, TextToSpeech.QUEUE_ADD,null);
                 eventConsumed = false;
+                temp.setVisibility(View.VISIBLE);
             }
             else if (v == temp){
                 dragging = true;
                 speech.speak(wordList.get(index).text, TextToSpeech.QUEUE_ADD,null);
                 eventConsumed = false;
+                temp.setVisibility(View.VISIBLE);
             }
+
         }
            if (action == MotionEvent.ACTION_UP) {
             if (dragging) {
@@ -382,13 +402,12 @@ public class PartsOfSpeechMain extends Activity implements OnTouchListener{
                     temp.setVisibility(View.INVISIBLE);
                 }
             }
-
             dragging = false;
             eventConsumed = false;
         }
         if (action == MotionEvent.ACTION_MOVE) {
-            temp.setVisibility(View.VISIBLE);
             if (v == temp ){
+                temp.setVisibility(View.VISIBLE);
                 if (dragging){
                     setAbsoluteLocationCentered(temp, x, y);
                 }
@@ -444,9 +463,9 @@ public class PartsOfSpeechMain extends Activity implements OnTouchListener{
         else{
             Toast.makeText(this, "Incorrect", Toast.LENGTH_SHORT).show();
             consecutiveCounter = 0;
-            temp.setText(null);
-            temp.setVisibility(View.INVISIBLE);
         }
+        temp.setText(null);
+        temp.setVisibility(View.INVISIBLE);
     }
     /*    achievements
     method to check if the user has completed any achievements
@@ -524,11 +543,17 @@ public class PartsOfSpeechMain extends Activity implements OnTouchListener{
             level ++;
             answerCounter =0;
             displayLevelDialog();
+            randomiseList();
+            assignImages();
         }
         else if(level == 3 && answerCounter ==12){
             level++;
             answerCounter = 0;
             displayCompleteDialogue();
+            level = 1;
+            myRef.child("Level").setValue(level);
+            randomiseList();
+            assignImages();
             myRef.child("hasCompleted").setValue(true);
         }
         else if(level == 4 && answerCounter ==12){
@@ -550,23 +575,18 @@ public class PartsOfSpeechMain extends Activity implements OnTouchListener{
             @Override
             public void onClick(View v)
             {
-                level = 1;
-                myRef.child("Level").setValue(level);
-                randomiseList();
-                assignImages();
                 popUpDialog.dismiss();
             }
         });
         popUpDialog.show();
-
         freeModeBtn.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v)
             {
+                level = 3;
                 randomiseList();
                 assignImages();
                 popUpDialog.dismiss();
-
             }
         });
     }
@@ -583,8 +603,6 @@ public class PartsOfSpeechMain extends Activity implements OnTouchListener{
             @Override
             public void onClick(View v)
             {
-                randomiseList();
-                assignImages();
                 levelDialog.dismiss();
             }
         });
@@ -595,9 +613,8 @@ public class PartsOfSpeechMain extends Activity implements OnTouchListener{
             public void onClick(View v)
             {
                 levelDialog.dismiss();
-                Toast.makeText(PartsOfSpeechMain.this,
-                        "The user will be taken back to the game menu activity",
-                        Toast.LENGTH_SHORT).show();
+                Intent i = new Intent(getApplicationContext(), PartsOfSpeechMenu.class);
+                startActivity(i);
             }
         });
     }

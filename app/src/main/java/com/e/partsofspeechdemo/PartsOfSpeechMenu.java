@@ -35,7 +35,6 @@ public class PartsOfSpeechMenu extends AppCompatActivity {
 
 
     //Firebase
-
     private FirebaseDatabase database;
     private DatabaseReference myRef;
     private FirebaseUser currentUser;
@@ -46,7 +45,7 @@ public class PartsOfSpeechMenu extends AppCompatActivity {
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_parts_of_speech_menu);
-
+        database.getInstance().setPersistenceEnabled(true);
         readingGameLevel();
         assignComponents();
 
@@ -108,7 +107,7 @@ public class PartsOfSpeechMenu extends AppCompatActivity {
     private void readingGameLevel() {
         //Reading in Game Level from Firebase
         //Firebase Declarations
-        database.getInstance().setPersistenceEnabled(true);
+
         database = FirebaseDatabase.getInstance();
         myRef = database.getReference("Users/fHRTVSzz1EXpC89KzxfPWczk9hv2/Games/PartsOfSpeech"); /*"Users/"+ currentUser.getUid() +"/Games/PartsOfSpeech"*/
         myRef.keepSynced(true);
