@@ -17,9 +17,7 @@ import android.widget.ImageView;
 import android.view.View.OnTouchListener;
 import android.widget.TextView;
 import android.widget.Toast;
-
 import androidx.annotation.NonNull;
-
 import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.auth.FirebaseUser;
 import com.google.firebase.database.DataSnapshot;
@@ -27,7 +25,6 @@ import com.google.firebase.database.DatabaseError;
 import com.google.firebase.database.DatabaseReference;
 import com.google.firebase.database.FirebaseDatabase;
 import com.google.firebase.database.ValueEventListener;
-
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Locale;
@@ -43,7 +40,7 @@ import java.util.Random;
 public class PartsOfSpeechMain extends Activity implements OnTouchListener{
     private AbsoluteLayout mainLayout;
     private TextView  selectedWord, word1Img, word2Img, word3Img, word4Img, word5Img, word6Img
-    , word7Img, word8Img, word9Img, word10Img, word11Img, word12Img, temp;
+            , word7Img, word8Img, word9Img, word10Img, word11Img, word12Img, temp;
     private ImageView nounImg, verbImg, adjectiveImg;
     private Rect nounHitRect = new Rect();
     private Rect verbHitRect = new Rect();
@@ -51,7 +48,7 @@ public class PartsOfSpeechMain extends Activity implements OnTouchListener{
     List<Word> originalWordList = new ArrayList<>();
     List<Word> wordList = new ArrayList<>();
     private boolean dragging = false;
-    int level,answerCounter, consecutiveCounter = 0, achievementLevel = 0, totalMatchCounter, index;
+    int level,answerCounter, consecutiveCounter = 0, achLvl = 0, totMatch, index;
     private Random randomGenerator = new Random();
     //Firebase
     private FirebaseDatabase database;
@@ -65,29 +62,24 @@ public class PartsOfSpeechMain extends Activity implements OnTouchListener{
     //pop up dialogue
     private Dialog popUpDialog, levelDialog;
     private Button startAgainBtn, freeModeBtn ,returnBtn;
-
     final Handler handler = new Handler();
-
     /*    onCreate
     Method that runs when the activity is opened
     Version 1 */
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-
         setContentView(R.layout.parts_of_speech_main);
         mainLayout = (AbsoluteLayout) findViewById(R.id.mainLayout);
         mainLayout.setOnTouchListener(this);
-
+        //declaring pop up dialogs
         popUpDialog = new Dialog(this);
         popUpDialog.setContentView(R.layout.custompopup);
-
         levelDialog = new Dialog(this);
         levelDialog.setContentView(R.layout.levelpopup);
-
         //Media player
         mp = MediaPlayer.create(this, R.raw.popcorn);
-
+        //declaring text to speech properties
         speech = new TextToSpeech(this, new TextToSpeech.OnInitListener() {
             @Override
             public void onInit(int status) {
@@ -103,13 +95,13 @@ public class PartsOfSpeechMain extends Activity implements OnTouchListener{
         });
         declareComponents();
         level = Integer.parseInt(getIntent().getExtras().get("PoSLevel").toString());
-        achievementLevel = Integer.parseInt(getIntent().getExtras().get("PoSConsecutiveAchievement").toString());
-        totalMatchCounter = Integer.parseInt(getIntent().getExtras().get("PoSTotalAchievement").toString());
+        achLvl = Integer.parseInt(getIntent().getExtras().get("PoSConsecutiveAchievement").toString());
+        totMatch = Integer.parseInt(getIntent().getExtras().get("PoSTotalAchievement").toString());
         retrieveFromDatabase();
         handler.postDelayed(new Runnable() {
             @Override
             public void run() {
-                // Do something after 4s = 4000ms
+                //2s Delay is used as it takes over a second to load all items from firebase
                 randomiseList();
                 assignImages();
             }
@@ -120,16 +112,16 @@ public class PartsOfSpeechMain extends Activity implements OnTouchListener{
     Method that retrieves all the words and populates an array
     Version 1 */
     private void retrieveFromDatabase() {
-
         database = FirebaseDatabase.getInstance();
         myRef = database.getReference("PhotoLabel");
         myRef.keepSynced(true);
-
         myRef.addValueEventListener(new ValueEventListener() {
             @Override
             public void onDataChange(@NonNull DataSnapshot ds) {
                 for (DataSnapshot data: ds.getChildren()){
-                    originalWordList.add(new Word(data.child("Word").getValue().toString(), data.child("PoS").getValue().toString()));
+                    String word = data.child("Word").getValue().toString();
+                    String PoS = data.child("PoS").getValue().toString();
+                    originalWordList.add(new Word(word, PoS));
                 }
             }
             @Override
@@ -138,14 +130,15 @@ public class PartsOfSpeechMain extends Activity implements OnTouchListener{
             }
         });
     }
-
+    /*    randomiseList
+    Method that makes a local copy of the array so that the user does not have to download the list after each level completed.
+    The code then randomizes a copy of the local list
+    Version 1 */
     private void randomiseList(){
         List<Word> tempWordList = new ArrayList<>();
-
         for (int i = 0; i < originalWordList.size();i++){
             tempWordList.add(originalWordList.get(i));
         }
-
         wordList.clear();
         for (int i = 0; i< 12; i++) {
             int randomNumber = randomGenerator.nextInt(tempWordList.size());
@@ -153,7 +146,9 @@ public class PartsOfSpeechMain extends Activity implements OnTouchListener{
             tempWordList.remove(randomNumber);
         }
     }
-
+    /*    onDestroy
+    Method that passes the level the user is currently on back to the menu when they exit
+    Version 1 */
     @Override
     protected void onDestroy() {
         super.onDestroy();
@@ -161,7 +156,6 @@ public class PartsOfSpeechMain extends Activity implements OnTouchListener{
         posMenu.level = level;
         Log.d("TAG", "onDestroy: ");
     }
-
     /*    declareComponents
         Method to declare all the components being used on the activity
         Version 1 */
@@ -182,12 +176,9 @@ public class PartsOfSpeechMain extends Activity implements OnTouchListener{
         verbImg = findViewById(R.id.VerbsImageView);
         adjectiveImg = findViewById(R.id.AdjectiveImageView);
         temp = findViewById(R.id.tempImage);
-
-
         nounImg.setImageDrawable(getDrawable(R.drawable.nouns));
         verbImg.setImageDrawable(getDrawable(R.drawable.verbs));
         adjectiveImg.setImageDrawable(getDrawable(R.drawable.adjectives));
-
     }
 
     /*    assignImages
@@ -245,18 +236,14 @@ public class PartsOfSpeechMain extends Activity implements OnTouchListener{
     public boolean onTouch(View v, MotionEvent event) {
         //method is used when a image view has been touched, dragged and dropped.
         //the image view is passed as a parameter to the method
-        Log.d("TAG", "dragging:  " + dragging);
         if(!dragging){
             temp.setVisibility(View.INVISIBLE);
         }
-        Log.d("TAG", "dragging:  " + dragging);
-        Log.d("TAG", "STOP");
         boolean eventConsumed = true;
         int x = (int)event.getX();
         int y = (int)event.getY();
         temp.setX(x - (temp.getWidth())/2);
         temp.setY(y - (temp.getHeight())/2);
-
         int action = event.getAction();
         if (action == MotionEvent.ACTION_DOWN) {
             if (v == word1Img){
@@ -373,14 +360,12 @@ public class PartsOfSpeechMain extends Activity implements OnTouchListener{
                 eventConsumed = false;
                 temp.setVisibility(View.VISIBLE);
             }
-
         }
-           if (action == MotionEvent.ACTION_UP) {
+        if (action == MotionEvent.ACTION_UP) {
             if (dragging) {
                 nounImg.getHitRect(nounHitRect);
                 verbImg.getHitRect(verbHitRect);
                 adjectiveImg.getHitRect(adjectiveHitRect);
-
                 if (nounHitRect.contains(x, y)) {
                     //when you drop shape into outline
                     setSameAbsoluteLocation(temp, nounImg);
@@ -454,11 +439,10 @@ public class PartsOfSpeechMain extends Activity implements OnTouchListener{
             selectedWord.setVisibility(View.INVISIBLE);
             temp.setVisibility(View.INVISIBLE);
             consecutiveCounter++;
-            totalMatchCounter++;
+            totMatch++;
             answerCounter++;
             achievements();
             updateLevel();
-
         }
         else{
             Toast.makeText(this, "Incorrect", Toast.LENGTH_SHORT).show();
@@ -473,39 +457,42 @@ public class PartsOfSpeechMain extends Activity implements OnTouchListener{
     private void achievements(){
         //Total shape match achievement check
         myRef = database.getReference("Users/fHRTVSzz1EXpC89KzxfPWczk9hv2/Games/PartsOfSpeech"); /*"Users/"+ currentUser.getUid() +"/Games/PartsOfSpeech"*/
-        myRef.child("TotalAchievement").setValue(totalMatchCounter);
-        if(totalMatchCounter == 10){
-            Toast.makeText(this, "Congratulations on making 10 matches", Toast.LENGTH_SHORT).show();
+        myRef.child("TotalAchievement").setValue(totMatch);
+        if(totMatch == 10){
+            Toast.makeText(this, "Congratulations on making 10 matches",
+                    Toast.LENGTH_SHORT).show();
         }
-        if(totalMatchCounter == 20){
-            Toast.makeText(this, "Congratulations on making 20 matches.", Toast.LENGTH_SHORT).show();
+        if(totMatch == 20){
+            Toast.makeText(this, "Congratulations on making 20 matches.",
+                    Toast.LENGTH_SHORT).show();
         }
-        if(totalMatchCounter == 30){
-            Toast.makeText(this, "Congratulations on making 30 matches.", Toast.LENGTH_SHORT).show();
+        if(totMatch == 30){
+            Toast.makeText(this, "Congratulations on making 30 matches.",
+                    Toast.LENGTH_SHORT).show();
         }
-        if(totalMatchCounter == 50){
-            Toast.makeText(this, "Congratulations on making 50 matches.", Toast.LENGTH_SHORT).show();
+        if(totMatch == 50){
+            Toast.makeText(this, "Congratulations on making 50 matches.",
+                    Toast.LENGTH_SHORT).show();
         }
-
         //Consecutive achievement check
-        if(consecutiveCounter == 10 && achievementLevel < 1){
+        if(consecutiveCounter == 10 && achLvl < 1){
             myRef = database.getReference("Users/fHRTVSzz1EXpC89KzxfPWczk9hv2/Games/PartsOfSpeech"); /*"Users/"+ currentUser.getUid() +"/Games/PartsOfSpeech"*/
             Toast.makeText(this, "Congratulations, You have earned the Consecutive Bronze medal",
                     Toast.LENGTH_SHORT).show();
             myRef.child("ConsecutiveAchievement").setValue("1");
-            achievementLevel++;
+            achLvl++;
         }
-        else if(consecutiveCounter == 20 && achievementLevel < 2){
+        else if(consecutiveCounter == 20 && achLvl < 2){
             Toast.makeText(this, "Congratulations, You have earned the Consecutive Silver medal",
                     Toast.LENGTH_SHORT).show();
             myRef.child("ConsecutiveAchievement").setValue("2");
-            achievementLevel++;
+            achLvl++;
         }
-        else if(consecutiveCounter == 30 && achievementLevel < 3){
+        else if(consecutiveCounter == 30 && achLvl < 3){
             Toast.makeText(this, "Congratulations, You have earned the Consecutive Gold medal",
                     Toast.LENGTH_SHORT).show();
             myRef.child("ConsecutiveAchievement").setValue("3");
-            achievementLevel++;
+            achLvl++;
         }
         else if(consecutiveCounter % 5==0)
             Toast.makeText(this, "Well done! " + consecutiveCounter + " in a row!",
@@ -538,7 +525,6 @@ public class PartsOfSpeechMain extends Activity implements OnTouchListener{
     method to update the level in the database and client application to display different amounts of Image views
     Version 1  */
     private void updateLevel(){
-
         if(level ==1 && answerCounter ==4 || level == 2 && answerCounter ==8 ){
             level ++;
             answerCounter =0;
@@ -570,7 +556,6 @@ public class PartsOfSpeechMain extends Activity implements OnTouchListener{
         //declaring Custom Pop Up items
         startAgainBtn= popUpDialog.findViewById(R.id.startAgainBtn);
         freeModeBtn = popUpDialog.findViewById(R.id.freeModeBtn);
-
         startAgainBtn.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v)
@@ -590,7 +575,6 @@ public class PartsOfSpeechMain extends Activity implements OnTouchListener{
             }
         });
     }
-
     /*    displayLevelDialog
         Method to display the dialogue once a game mode is completed to either start again or to quit
         Version 1 */
@@ -598,7 +582,6 @@ public class PartsOfSpeechMain extends Activity implements OnTouchListener{
         //declaring Custom Pop Up items
         startAgainBtn= levelDialog.findViewById(R.id.continuenBtn);
         returnBtn = levelDialog.findViewById(R.id.freeModeBtn);
-
         startAgainBtn.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v)
@@ -607,7 +590,6 @@ public class PartsOfSpeechMain extends Activity implements OnTouchListener{
             }
         });
         levelDialog.show();
-
         returnBtn.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v)
@@ -618,5 +600,4 @@ public class PartsOfSpeechMain extends Activity implements OnTouchListener{
             }
         });
     }
-
 }
